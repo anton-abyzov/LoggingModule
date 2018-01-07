@@ -7,17 +7,20 @@ using Microsoft.Extensions.Options;
 
 namespace LoggingModule
 {
-    public abstract class BatchingLoggerProvider
+    public abstract class LoggerProvider
     {
-        protected BatchingLoggerProvider(IOptions<LoggerRunOptions> options)
+        private readonly List<LogMessage> _currentBatch = new List<LogMessage>();
+        private readonly TimeSpan _interval;
+        //private BlockingCollection<LogMessage> _messageQueue = new BlockingCollection<LogMessage>(new PriorityQueue<LogMessage>());
+        private readonly BlockingCollection<LogMessage> _messageQueue = new BlockingCollection<LogMessage>(new PriorityQueue<LogMessage>());
+        private Task _outputTask;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        protected LoggerProvider(IOptions<LoggerRunOptions> options)
         {
             // save options etc
             _interval = options.Value.DelayInterval;
             // start the background task
-        _outputTask = Task.Factory.StartNew<Task>(
-            ProcessLogQueue,
-            null,
-            TaskCreationOptions.LongRunning);
+            _outputTask = Task.Factory.StartNew<Task>(ProcessLogQueue, null, TaskCreationOptions.LongRunning);
         }
 
         // Implemented in derived classes to actually write the messages out
@@ -60,14 +63,9 @@ namespace LoggingModule
         // Create an instance of an ILogger, which is used to actually write the logs
         public ILogger CreateLogger()
         {
-            return new BatchingLogger(this);
+            return new Logger(this);
         }
 
-        private readonly List<LogMessage> _currentBatch = new List<LogMessage>();
-        private readonly TimeSpan _interval;
-        //private BlockingCollection<LogMessage> _messageQueue = new BlockingCollection<LogMessage>(new ConcurrentPriorityQueue<LogMessage>());
-        private BlockingCollection<LogMessage> _messageQueue = new BlockingCollection<LogMessage>(new ConcurrentQueue<LogMessage>());
-        private Task _outputTask;
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
     }
 }

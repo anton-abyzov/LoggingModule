@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace LoggingModule
 {
-    public class FileLoggerProvider : BatchingLoggerProvider
+    public class FileLoggerProvider : LoggerProvider
     {
         private readonly string _path;
         private readonly string _fileName;
@@ -35,6 +35,7 @@ namespace LoggingModule
                     {
                         await streamWriter.WriteAsync(item.Message);
                     }
+                    streamWriter.Flush();
                 }
             }
         }

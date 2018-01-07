@@ -3,12 +3,12 @@ using System.Text;
 
 namespace LoggingModule
 {
-    public class BatchingLogger : ILogger
+    public class Logger : ILogger
     {
-        private readonly BatchingLoggerProvider _provider;
+        private readonly LoggerProvider _provider;
         private readonly Func<Exception, string> _formatter = (x) => x.Message;
 
-        public BatchingLogger(BatchingLoggerProvider loggerProvider)
+        public Logger(LoggerProvider loggerProvider)
         {
             _provider = loggerProvider;
         }
