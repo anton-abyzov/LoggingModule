@@ -29,7 +29,7 @@ namespace LoggingModule
                 builder.AppendLine(exception.ToString());
             }
 
-            _provider.AddMessage(timestamp, builder.ToString());
+            _provider.AddMessage(timestamp, builder.ToString(), severity);
         }
 
         public void Log(Severity severity, Exception exception, Func<Exception, string> formatter)
